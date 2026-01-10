@@ -1,0 +1,18 @@
+
+## generate audios as pseudo training data
+
+PYTHONPATH="$PYTHONPATH:." uv run indextts/infer_v2_jia.py sample_dataset/audio/ sample_dataset/text/ sample_dataset/output
+python3 tools/generate_json.py
+
+
+
+# prepare for the training input
+uv run python tools/preprocess_dyz.py --manifest sample_dataset/train_step1.json  --output-dir sample_dataset/processed_data/
+uv run python tools/build_gpt_prompt_pairs.py --manifest sample_dataset/processed_data/train_manifest.jsonl --output sample_dataset/processed_data/train_gpt.jsonl
+uv run python tools/build_gpt_prompt_pairs.py --manifest sample_dataset/processed_data/val_manifest.jsonl --output sample_dataset/processed_data/valid_gpt.jsonl
+
+
+CUDA_VISIBLE_DEVICES=1 source train.sh  >& train.log1
+
+## link gpt_new.pth and test that model
+PYTHONPATH="$PYTHONPATH:." uv run indextts/infer_v2.py

@@ -1,0 +1,20 @@
+uv run python trainers/train_gpt_v2.py \
+    --train-manifest sample_dataset/processed_data/train_gpt.jsonl \
+    --val-manifest sample_dataset/processed_data/valid_gpt.jsonl \
+    --tokenizer checkpoints/bpe.model \
+    --config checkpoints/config.yaml \
+    --base-checkpoint checkpoints/gpt.pth \
+    --output-dir trained_ckpts_paired \
+    --batch-size 16 \
+    --grad-accumulation 1 \
+    --epochs 100 \
+    --learning-rate 1e-5 \
+    --weight-decay 0.01 \
+    --warmup-steps 1000 \
+    --log-interval 1 \
+    --val-interval 2000 \
+    --grad-clip 1.0 \
+    --text-loss-weight 0.2 \
+    --mel-loss-weight 0.8 \
+    --amp \
+    --resume auto
