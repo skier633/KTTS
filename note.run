@@ -14,6 +14,8 @@ uv run python tools/build_gpt_prompt_pairs.py --manifest sample_dataset/processe
 ## train
 CUDA_VISIBLE_DEVICES=1 source train.sh  >& train.log1
 
-## add polyphone to the test part
-uv add pypinyin jieba
+## use opencc to convert traditional chinese to simplified Chinese, 
+## if the simplified chinese character is not in the BPE tokenizer, convert it to pinyin
+## convert polyphone character to pinyin
+uv add pypinyin jieba opencc 
 PYTHONPATH="$PYTHONPATH:." uv run indextts/infer_v2_poly.py

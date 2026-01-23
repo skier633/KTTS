@@ -760,8 +760,7 @@ import jieba
 import opencc
 from pypinyin import pinyin, Style
 
-
-def replace_phones(text,polyonly=1):
+def replace_phones(tts,text,polyonly=1):
     # 1. 分词确保语境准确
     words = jieba.lcut(text)
 
@@ -778,13 +777,20 @@ def replace_phones(text,polyonly=1):
 
             if polyonly == 0 or len(all_possible_pys) > 1:
                 # 是多音字，替换为当前语境下的精准读音
-                final_output.append(f" {accurate_pys[i][0]} ")
+                newchar = accurate_pys[i][0]+" "
             else:
                 # 不是多音字，保留原汉字
-                final_output.append(char)
+                newchar = char
+
+            token_ids = tts.tokenizer.convert_tokens_to_ids(newchar)
+
+            if token_ids[0] == tts.tokenizer.unk_token_id:
+                newchar = accurate_pys[i][0]+" "
+            
+            final_output.append(newchar)
 
     # 合并并清理空格
-    return "".join(final_output).replace("  ", " ").strip()
+    return "".join(final_output).replace("  ", " ").strip().upper()
 
 if __name__ == "__main__":
 
@@ -799,10 +805,11 @@ if __name__ == "__main__":
     #text = '只看见一只只巨大的输油管'
     #text = 'Welcome to the intern project text to speech synthesis'
     #orig_text = '银行的行长正在步行前往工地。他在房间里重弹了一遍那首重音很强的曲子。这个字很难，我也没学会。'
-    orig_text =  '台灣模式非供應鏈外移是擴大在美產業實力。亇人正往這邊走來。黑板上多奌看不清。'
-    simp = converter.convert(orig_text)
-    text = replace_phones(simp,0).upper()#.replace(" ","")
-    print(simp,text)
+    orig_text =  '台灣模式非供應鏈外移是擴大在美產業實力。亇人正往這邊走來。黑板上多奌看不清。鿰鿱鿲鿳鿴鿵鿶鿷鿸鿹鿺鿻鿼'
 
     tts = IndexTTS2(cfg_path="checkpoints/config_test.yaml", model_dir="checkpoints", use_cuda_kernel=False)
+    simp = converter.convert(orig_text)
+    text = replace_phones(tts,simp,1)
+    print(simp,text)
+
     tts.infer(spk_audio_prompt=prompt_wav, text=text, output_path="gen.wav", verbose=True,emo_vector=[0, 0, 0, 0, 0, 0, 0, 0])
