@@ -757,10 +757,11 @@ class QwenEmotion:
 
 
 import jieba
+import opencc
 from pypinyin import pinyin, Style
 
 
-def replace_only_polyphones_v2(text):
+def replace_phones(text,polyonly=1):
     # 1. 分词确保语境准确
     words = jieba.lcut(text)
 
@@ -775,7 +776,7 @@ def replace_only_polyphones_v2(text):
             # 如果 heteronym=True 返回的列表长度 > 1，则它是多音字
             all_possible_pys = pinyin(char, heteronym=True)[0]
 
-            if len(all_possible_pys) > 1:
+            if polyonly == 0 or len(all_possible_pys) > 1:
                 # 是多音字，替换为当前语境下的精准读音
                 final_output.append(f" {accurate_pys[i][0]} ")
             else:
@@ -785,19 +786,23 @@ def replace_only_polyphones_v2(text):
     # 合并并清理空格
     return "".join(final_output).replace("  ", " ").strip()
 
-
 if __name__ == "__main__":
+
+    # t2s: Traditional to Simplified
+    converter = opencc.OpenCC('t2s.json')
+
     #prompt_wav = "examples/voice_01.wav"
-    prompt_wav = "examples/voice_11.wav"
+    prompt_wav = "examples/voice_08.wav"
     #text = '欢迎大家来体验indextts2，并给予我们意见与反馈，谢谢大家。'
     #text = '欢迎来到中国，你看中什么礼物了？这是我的中学。他是中路军的士兵。恭喜你中奖了'
-    #text = "欢迎来到衷国，你看仲什么礼物了？这是我的忠学。他是终路军的士兵。恭喜你众奖了。"
     #text = '欢迎来到ZHONG1国，你看ZHONG4什么礼物了？这是我的ZHONG1学。他是ZHONG1路军的士兵。恭喜你ZHONG4奖了'
     #text = '只看见一只只巨大的输油管'
     #text = 'Welcome to the intern project text to speech synthesis'
-    orig_text = '银行的行长正在步行前往工地。他在房间里重弹了一遍那首重音很强的曲子。这个字很难，我也没学会。'
-    text = replace_only_polyphones_v2(orig_text).upper().replace(" ","")
-    print(text)
+    #orig_text = '银行的行长正在步行前往工地。他在房间里重弹了一遍那首重音很强的曲子。这个字很难，我也没学会。'
+    orig_text =  '台灣模式非供應鏈外移是擴大在美產業實力。亇人正往這邊走來。黑板上多奌看不清。'
+    simp = converter.convert(orig_text)
+    text = replace_phones(simp,0).upper()#.replace(" ","")
+    print(simp,text)
 
     tts = IndexTTS2(cfg_path="checkpoints/config_test.yaml", model_dir="checkpoints", use_cuda_kernel=False)
-    tts.infer(spk_audio_prompt=prompt_wav, text=text, output_path="gen.wav", verbose=True,emo_vector=[0, 0, 0, 0.8, 0, 0, 0, 0])
+    tts.infer(spk_audio_prompt=prompt_wav, text=text, output_path="gen.wav", verbose=True,emo_vector=[0, 0, 0, 0, 0, 0, 0, 0])
