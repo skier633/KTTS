@@ -769,8 +769,8 @@ def replace_phones(tts,text,polyonly=1):
     for word in words:
 
         # Skip English words
-        if word.isalpha():
-            final_output.append(word)
+        if word.isascii():
+            final_output.append(" "+word+" ")
             continue
 
         # 获取该词的精准读音（带声调）
@@ -810,11 +810,11 @@ if __name__ == "__main__":
     #text = '欢迎来到ZHONG1国，你看ZHONG4什么礼物了？这是我的ZHONG1学。他是ZHONG1路军的士兵。恭喜你ZHONG4奖了'
     #orig_text = '银行的行长正在步行前往工地。他在房间里重弹了一遍那首重音很强的曲子。这个字很难，我也没学会。'
     #orig_text =  '台灣模式非供應鏈外移是擴大在美產業實力。亇人正往這邊走來。黑板上多奌看不清。鿰鿱鿲鿳鿴鿵鿶鿷鿸鿹鿺鿻鿼'
-    orig_text = 'Man is condemned to be free; because once thrown into the world, he is responsible for everything he does. 萨特'
+    orig_text = '台灣mode非供應鏈外移是擴大在美產業實力。亇人正往這邊走來。黑板上多奌看不清。鿰鿱鿲鿳鿴鿵鿶. Man is condemned to be free; because once thrown into the world, he is responsible for everything he does. 萨特'
 
     tts = IndexTTS2(cfg_path="checkpoints/config_test.yaml", model_dir="checkpoints", use_cuda_kernel=False)
     simp = converter.convert(orig_text)
     text = replace_phones(tts,simp,1)
     print(simp,text)
 
-    tts.infer(spk_audio_prompt=prompt_wav, text=orig_text, output_path="gen.wav", verbose=True,emo_vector=[0, 0, 0, 0, 0, 0, 0, 0])
+    tts.infer(spk_audio_prompt=prompt_wav, text=text, output_path="gen.wav", verbose=True,emo_vector=[0, 0, 0, 0, 0, 0, 0, 0])
