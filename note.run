@@ -29,4 +29,6 @@ uv run python tools/build_gpt_prompt_pairs.py --manifest seasalt-processed/val_m
 CUDA_VISIBLE_DEVICES=1 source train_v1.sh  >& train_v1.log
 PYTHONPATH="$PYTHONPATH:." uv run indextts/infer_v2_poly.py
 
-
+=====================
+export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" ; CUDA_VISIBLE_DEVICES=1 source train_v4.sh  >& train_v4.log
+PYTHONPATH="$PYTHONPATH:." uv run indextts/infer_v4.py
