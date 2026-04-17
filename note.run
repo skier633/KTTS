@@ -21,7 +21,7 @@ uv add pypinyin jieba opencc
 PYTHONPATH="$PYTHONPATH:." uv run indextts/infer_v2_poly.py
 
 ====================
-uv run python3 tools/generate_json.py seasalt-processed/taiwan.json
+python3 tools/generate_json.py seasalt-processed/taiwan.json
 uv run python tools/preprocess_dyz.py --manifest  seasalt-processed/taiwan.json --output-dir seasalt-processed/
 uv run python tools/build_gpt_prompt_pairs.py --manifest seasalt-processed/train_manifest.jsonl --output seasalt-processed/train_gpt.jsonl
 uv run python tools/build_gpt_prompt_pairs.py --manifest seasalt-processed/val_manifest.jsonl --output seasalt-processed/valid_gpt.jsonl
