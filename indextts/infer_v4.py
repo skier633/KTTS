@@ -771,6 +771,28 @@ import jieba
 import opencc
 from pypinyin import pinyin, Style
 
+# convert tradtional chinese characters into simplified version
+def convert_to_simp(text):
+    import opencc
+    # 1. Basic OpenCC conversion (handles most characters)
+    converter = opencc.OpenCC('tw2s')
+    simplified = converter.convert(text)
+
+    manual_map = {
+            "吋": "寸", "呎": "尺", "妳": "你", "姵": "佩", "峇": "巴",
+            "揹": "背", "暱": "昵", "牠": "它", "瓈": "璃", "瞇": "眯",
+            "砲": "炮", "粧": "妆", "罣": "挂", "舖": "铺", "藷": "薯",
+            "衞": "卫", "遶": "绕", "黐": "chi1", "徬": "彷", "暸": "liao2",
+            "煇": "辉", "抬": "抬"}
+
+
+    # 2. Apply our manual override for specific characters
+    for trad, simp in manual_map.items():
+        simplified = simplified.replace(trad, simp)
+
+    return simplified
+
+
 def replace_phones(tts,text,polyonly=1):
     # 1. 分词确保语境准确
     words = jieba.lcut(text)
@@ -829,12 +851,12 @@ if __name__ == "__main__":
     #orig_text = '歡迎來到中國。這是我兒子給你的一個小禮物，因為他這次來不了亞洲，所以托我帶來'
     #orig_text = '一二三四五六七八九十百千萬.真是很期待能為你做點事情,最差結果是三十一點二，暴跌二十點，企業老闆不開心'
     #orig_text = '台灣mode非供應鏈外移是擴大在美產業實力。亇人正往這邊走來。黑板上多奌看不清。鿰鿱鿲鿳鿴鿵鿶. Man is condemned to be free; because once thrown into the world, he is responsible for everything he does. 萨特'
-    orig_text = '情節輕微，暫緩關押，傷亡人數為一百零三，注意危險，突如其來的好消息，市場早有預期，變化輕微，擁有龐大地產和指數期貨.'
+    orig_text = '情節輕微，暫緩關押，長度為一百零三呎，注意危險，突如其來的好消息，市場早有預期，變化輕微，擁有龐大地產和指數期貨.'
     #orig_text = '情節輕微，暫緩關押，傷亡人數為一百零三，注意危險，突如其來的好消息，市場早有預期，變化輕微，擁有龐大地產和指數期貨. Man is condemned to be free; because once thrown into the world, he is responsible for everything he does。'
 
 
     tts = IndexTTS2(cfg_path="checkpoints/config_test.yaml", model_dir="checkpoints", use_cuda_kernel=False)
-    simp = converter.convert(orig_text)
+    simp = convert_to_simp(orig_text)
     #text = replace_phones(tts,simp,1)
     text = simp
     print(simp,text)
